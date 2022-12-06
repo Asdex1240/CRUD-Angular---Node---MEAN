@@ -22,4 +22,11 @@ export class ListarProductosComponent implements OnInit {
     });
   }
 
+  eliminarProducto(id: any){
+    this.productoService.eliminarProducto(id).subscribe( data =>{
+      alert('Producto eliminado');
+      this.obtenerProductos();
+    });
+  }
+
 }
