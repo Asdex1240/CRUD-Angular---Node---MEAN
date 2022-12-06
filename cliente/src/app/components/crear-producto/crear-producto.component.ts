@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Producto } from 'src/app/models/producto';
+import { ProductoService } from 'src/app/services/producto.service';
 
 @Component({
   selector: 'app-crear-producto',
@@ -12,7 +13,7 @@ export class CrearProductoComponent implements OnInit {
 
   productoForm: FormGroup; 
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(private fb: FormBuilder, private router: Router,private productoService: ProductoService) {
 
     this.productoForm = this.fb.group({
       producto: ['', Validators.required],
@@ -33,6 +34,11 @@ export class CrearProductoComponent implements OnInit {
       precio: this.productoForm.get('precio')?.value,
     }
     console.log(PRODUCTO);
+    this.productoService.guardarProducto(PRODUCTO).subscribe( data =>{
+      alert('Producto agregado');
+      this.router.navigate(['/']);
+    });
+    
     this.router.navigate(['/'])
   }
   
