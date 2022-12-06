@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Producto } from 'src/app/models/producto';
 import { ProductoService } from 'src/app/services/producto.service';
 
@@ -12,8 +12,10 @@ import { ProductoService } from 'src/app/services/producto.service';
 export class CrearProductoComponent implements OnInit {
 
   productoForm: FormGroup; 
-
-  constructor(private fb: FormBuilder, private router: Router,private productoService: ProductoService) {
+  titulo = 'Crear Producto';
+  id: string | null;
+  constructor(private fb: FormBuilder, private router: Router,private productoService: ProductoService,
+    private aRoute: ActivatedRoute) {
 
     this.productoForm = this.fb.group({
       producto: ['', Validators.required],
@@ -21,9 +23,10 @@ export class CrearProductoComponent implements OnInit {
       ubicacion: ['', Validators.required],
       precio: ['', Validators.required],
     })
-
+    this.id = this.aRoute.snapshot.paramMap.get('id');
   }
   ngOnInit(): void {
+    this.esEditar();
   }
 
   agregarProducto(){
@@ -33,13 +36,37 @@ export class CrearProductoComponent implements OnInit {
       ubicacion: this.productoForm.get('ubicacion')?.value,
       precio: this.productoForm.get('precio')?.value,
     }
-    console.log(PRODUCTO);
-    this.productoService.guardarProducto(PRODUCTO).subscribe( data =>{
-      alert('Producto agregado');
-      this.router.navigate(['/']);
-    });
-    
-    this.router.navigate(['/'])
+
+    if(this.id !== null){
+
+      this.productoService.editarProducto(this.id, PRODUCTO).subscribe( data =>{
+        alert('Producto editado');
+        this.router.navigate(['/']);
+      });
+      
+    }else{
+      console.log(PRODUCTO);
+      this.productoService.guardarProducto(PRODUCTO).subscribe( data =>{
+        alert('Producto agregado');
+        this.router.navigate(['/']);
+      });
+    }
+
+
+  }
+
+  esEditar(){
+    if(this.id !== null){
+      this.titulo = 'Editar Producto';
+      this.productoService.obtenerProducto(this.id).subscribe(data => {
+        this.productoForm.setValue({
+          producto: data.nombre,
+          categoria: data.categoria,
+          ubicacion: data.ubicacion,
+          precio: data.precio,
+        })
+      })
+    }
   }
   
 }
